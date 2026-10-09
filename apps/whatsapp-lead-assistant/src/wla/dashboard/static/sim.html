@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Simulador · Residencial Jardins</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">◆</span>
+      <div>
+        <h1>Incorporadora Horizonte</h1>
+        <p>Simulador de conversa (plano B da demo — mesmo fluxo do WhatsApp)</p>
+      </div>
+    </div>
+    <nav>
+      <a href="/">Painel</a>
+      <a href="/sim" class="active">Simulador</a>
+      <span id="me" class="me"></span>
+    </nav>
+  </header>
+
+  <main class="sim-wrap">
+    <section class="phone" aria-label="Conversa simulada">
+      <div class="phone-head">
+        <strong>Clara · Residencial Jardins</strong>
+        <button id="reset" type="button" class="link">nova conversa</button>
+      </div>
+      <div id="chat" class="chat phone-chat" aria-live="polite"></div>
+      <form id="form" class="composer" autocomplete="off">
+        <input id="text" maxlength="1000" placeholder="Digite uma mensagem…" required>
+        <button type="submit">Enviar</button>
+      </form>
+    </section>
+    <aside class="card sim-help">
+      <h2>Roteiro sugerido</h2>
+      <ol>
+        <li>“Oi, vi o anúncio do Residencial Jardins”</li>
+        <li>“Quero 3 quartos, tenho renda de 15 mil e uso FGTS”</li>
+        <li>“Pretendo comprar nos próximos 2 meses, trabalho em Campinas”</li>
+        <li>“Posso visitar o decorado sábado às 10h?”</li>
+      </ol>
+      <p class="muted">As mensagens passam pelo Pub/Sub, Gemini e Firestore exatamente como no WhatsApp; só a resposta volta para esta tela em vez do celular.</p>
+    </aside>
+  </main>
+  <script src="/static/sim.js"></script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+{
+  "empreendimento": "Residencial Jardins",
+  "incorporadora": "Incorporadora Horizonte",
+  "cidade": "Campinas - SP",
+  "bairro": "Jardim Horizonte (fictício)",
+  "entrega_prevista": "dezembro de 2028",
+  "unidades": [
+    {"codigo": "2Q", "nome": "2 quartos", "area_m2": 52, "preco_a_partir": 289900, "disponiveis": 18, "vagas": 1, "elegivel_mcmv": true},
+    {"codigo": "2Q_SUITE", "nome": "2 quartos com suíte", "area_m2": 61, "preco_a_partir": 339900, "disponiveis": 9, "vagas": 1, "elegivel_mcmv": false},
+    {"codigo": "3Q", "nome": "3 quartos com suíte", "area_m2": 74, "preco_a_partir": 429900, "disponiveis": 6, "vagas": 2, "elegivel_mcmv": false}
+  ],
+  "financiamento": {
+    "percentual_financiado_padrao": 0.8,
+    "prazo_meses_padrao": 360,
+    "comprometimento_maximo_renda": 0.3,
+    "taxas_anuais": {"SBPE": 0.1149, "MCMV": 0.0816},
+    "mcmv_renda_maxima": 8600,
+    "entrada_parcelas_max": 36,
+    "aceita_fgts": true
+  },
+  "decorado": {
+    "endereco": "Av. das Palmeiras, 1000 - Jardim Horizonte, Campinas (endereço fictício)",
+    "dias": [0, 1, 2, 3, 4, 5],
+    "hora_abertura": 9,
+    "hora_fechamento": 18
+  }
+}

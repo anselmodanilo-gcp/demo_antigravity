@@ -1,0 +1,67 @@
+[build-system]
+requires = ["setuptools>=75", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "whatsapp-lead-assistant"
+version = "0.1.0"
+description = "Assistente de atendimento e qualificação de leads no WhatsApp com Gemini (demo Antigravity para Business)"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "Apache-2.0" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+wla = ["agent/prompts/*.md", "dashboard/static/*", "knowledge/*"]
+
+# ----------------------------------------------------------------- ruff
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "C4", "SIM", "RUF", "PL", "PT", "N", "ASYNC", "TRY", "LOG"]
+# PLC0415: imports tardios são intencionais (clientes GCP só carregam em produção).
+ignore = ["PLR0913", "PLR0917", "PLR2004", "PLC0415", "TRY003", "RUF001", "RUF002", "RUF003"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S105", "S106", "PLR2004", "TRY301"]
+"src/wla/*/app.py" = ["PLR0915"]  # fábricas FastAPI registram rotas inline
+"evals/**" = ["S101", "T201"]
+"loadtest/**" = ["S311"]
+
+# ----------------------------------------------------------------- mypy
+[tool.mypy]
+python_version = "3.12"
+strict = true
+mypy_path = "src"
+packages = ["wla"]
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = ["google.*", "opentelemetry.*"]
+ignore_missing_imports = true
+
+# ----------------------------------------------------------------- pytest
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = "-q --strict-markers"
+markers = ["integration: requer recursos reais do GCP"]
+
+[tool.coverage.run]
+source = ["wla"]
+branch = true
+omit = ["*/telemetry.py"]
+
+[tool.coverage.report]
+fail_under = 85
+show_missing = true
+skip_covered = true
+
+# ----------------------------------------------------------------- bandit
+[tool.bandit]
+exclude_dirs = ["tests", "evals", "loadtest"]

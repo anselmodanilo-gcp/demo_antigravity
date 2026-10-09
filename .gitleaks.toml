@@ -1,0 +1,10 @@
+title = "demo_antigravity"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Valores de teste e fixtures fictícios"
+paths = [
+  '''apps/.*/tests/.*''',
+]

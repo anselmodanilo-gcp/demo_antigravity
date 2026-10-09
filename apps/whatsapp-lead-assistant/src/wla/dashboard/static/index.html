@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Leads · Residencial Jardins</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">◆</span>
+      <div>
+        <h1>Incorporadora Horizonte</h1>
+        <p>Residencial Jardins · Painel de leads do WhatsApp</p>
+      </div>
+    </div>
+    <nav>
+      <a href="/" class="active">Painel</a>
+      <a href="/sim">Simulador</a>
+      <span id="me" class="me"></span>
+    </nav>
+  </header>
+
+  <main>
+    <section class="kpis" aria-label="Indicadores">
+      <article class="kpi"><span>Leads</span><strong id="k-total">–</strong></article>
+      <article class="kpi hot"><span>Quentes</span><strong id="k-quente">–</strong></article>
+      <article class="kpi warm"><span>Mornos</span><strong id="k-morno">–</strong></article>
+      <article class="kpi cold"><span>Frios</span><strong id="k-frio">–</strong></article>
+      <article class="kpi"><span>Visitas agendadas</span><strong id="k-visitas">–</strong></article>
+      <article class="kpi"><span>Corretor avisado</span><strong id="k-corretor">–</strong></article>
+    </section>
+
+    <div class="grid">
+      <section class="card">
+        <div class="card-head">
+          <h2>Leads recentes</h2>
+          <span class="muted" id="updated">atualizando…</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Lead</th><th>Canal</th><th>Score</th><th>Tipologia</th><th>Prazo</th><th>Visita</th><th>Status</th></tr>
+          </thead>
+          <tbody id="leads"></tbody>
+        </table>
+        <p id="empty" class="muted hidden">Nenhum lead ainda. Envie uma mensagem pelo WhatsApp ou pelo simulador.</p>
+      </section>
+
+      <aside class="card">
+        <h2>Conversa</h2>
+        <p id="conv-title" class="muted">Selecione um lead para ver o histórico.</p>
+        <p id="conv-summary" class="summary hidden"></p>
+        <div id="conversation" class="chat"></div>
+        <h2 class="mt">Avisos ao corretor</h2>
+        <ul id="notifications" class="notes"></ul>
+      </aside>
+    </div>
+  </main>
+  <script src="/static/app.js"></script>
+</body>
+</html>

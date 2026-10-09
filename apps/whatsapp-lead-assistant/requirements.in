@@ -1,0 +1,13 @@
+# Dependências de runtime (diretas). O arquivo travado com hashes é requirements.lock.
+fastapi==0.143.0
+uvicorn==0.54.0
+pydantic==2.14.0
+pydantic-settings==2.15.0
+google-cloud-pubsub==2.42.0
+google-cloud-firestore==2.34.1
+google-genai==2.29.0
+google-auth==2.61.0
+requests==2.34.2
+httpx==0.28.1
+tenacity==9.1.4
+cryptography==50.0.2

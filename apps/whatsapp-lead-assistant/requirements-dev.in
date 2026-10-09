@@ -1,0 +1,15 @@
+# Ferramentas de desenvolvimento, qualidade e segurança (não vão para a imagem de produção).
+# Compilado para requirements-dev.lock (com hashes) mantendo as versões de runtime do requirements.lock.
+-r requirements.in
+-c requirements.lock
+pytest==9.1.1
+pytest-asyncio==1.4.0
+pytest-cov==7.1.0
+respx==0.23.1
+ruff==0.16.10
+mypy==2.4.0
+bandit==1.9.4
+pip-audit==2.10.1
+pyyaml==6.0.3
+types-requests
+types-PyYAML

@@ -1,0 +1,96 @@
+name: deploy
+
+# Roda somente depois do CI verde no main, com aprovação manual no ambiente "demo".
+on:
+  workflow_run:
+    workflows: [ci]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-demo
+  cancel-in-progress: false
+
+env:
+  APP_DIR: apps/whatsapp-lead-assistant
+  TF_DIR: infra/terraform/envs/demo
+
+jobs:
+  deploy:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment:
+      name: demo
+      url: ${{ steps.tf.outputs.dashboard_url }}
+    permissions:
+      contents: read
+      id-token: write # OIDC para o Workload Identity Federation (sem chaves)
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          persist-credentials: false
+
+      - id: auth
+        uses: google-github-actions/auth@c200f3691d83b41bf9bbd8638997a462592937ed # v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SA }}
+
+      - uses: google-github-actions/setup-gcloud@e427ad8a34f8676edf47cf7d7925499adf3eb74f # v2
+
+      - name: Build e push da imagem
+        id: image
+        env:
+          REGISTRY: ${{ vars.GCP_REGION }}-docker.pkg.dev
+          REPO: ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/demo-antigravity/wla
+          SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+        run: |
+          gcloud auth configure-docker "$REGISTRY" --quiet
+          docker build --label "org.opencontainers.image.revision=$SHA" -t "$REPO:$SHA" "$APP_DIR"
+          docker push "$REPO:$SHA"
+          DIGEST="$(gcloud artifacts docker images describe "$REPO:$SHA" --format='value(image_summary.digest)')"
+          echo "ref=$REPO@$DIGEST" >> "$GITHUB_OUTPUT"
+
+      - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3
+        with:
+          terraform_version: 1.16.5
+          terraform_wrapper: false
+
+      - name: Terraform apply
+        id: tf
+        working-directory: ${{ env.TF_DIR }}
+        env:
+          TF_VAR_image: ${{ steps.image.outputs.ref }}
+          TF_VAR_project_id: ${{ vars.GCP_PROJECT_ID }}
+          TF_VAR_region: ${{ vars.GCP_REGION }}
+          TF_VAR_broker_wa_number: ${{ vars.BROKER_WA_NUMBER }}
+          TF_VAR_broker_template_name: ${{ vars.BROKER_TEMPLATE_NAME }}
+        run: |
+          terraform init -input=false
+          terraform apply -input=false -auto-approve
+          echo "webhook_url=$(terraform output -raw webhook_url)" >> "$GITHUB_OUTPUT"
+          echo "dashboard_url=$(terraform output -raw dashboard_url)" >> "$GITHUB_OUTPUT"
+
+      - name: Smoke tests (segurança do endpoint público)
+        env:
+          WEBHOOK: ${{ steps.tf.outputs.webhook_url }}
+          DASHBOARD: ${{ steps.tf.outputs.dashboard_url }}
+        run: |
+          set -eu
+          code() { curl -s -o /dev/null -w '%{http_code}' --retry 3 --retry-all-errors "$@"; }
+          test "$(code "${WEBHOOK%/webhook}/healthz")" = "200"
+          test "$(code "$WEBHOOK?hub.mode=subscribe&hub.verify_token=errado&hub.challenge=1")" = "403"
+          POST="$(code -X POST -H 'Content-Type: application/json' -d '{}' "$WEBHOOK")"
+          case "$POST" in 401|503) echo "POST sem assinatura recusado ($POST)";; *) echo "inesperado: $POST"; exit 1;; esac
+          # Painel sem login do Google deve ser barrado pelo IAP.
+          DASH="$(code "$DASHBOARD/api/leads")"
+          case "$DASH" in 302|401|403) echo "painel protegido ($DASH)";; *) echo "painel exposto: $DASH"; exit 1;; esac
+          echo "### Deploy concluído" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Webhook: $WEBHOOK" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Painel (IAP): $DASHBOARD" >> "$GITHUB_STEP_SUMMARY"

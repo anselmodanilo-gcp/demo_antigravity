@@ -1,0 +1,11 @@
+# Exceções documentadas (decisões de custo/escopo da demo). Revisar a cada mudança de arquitetura.
+compact: true
+quiet: true
+skip-check:
+  # CMEK/CSEK: dados fictícios e criptografia padrão do Google (AES-256 em repouso). Em produção,
+  # usar Cloud KMS com rotação para BigQuery e Pub/Sub.
+  - CKV_GCP_80
+  - CKV_GCP_81
+  - CKV_GCP_83
+  # Ambiente descartável (terraform destroy ao fim da demo); retenção controlada por expiração.
+  - CKV_GCP_121
